@@ -1,0 +1,16 @@
+- name: 공통 설정
+  hosts: validators
+  become: yes
+  roles:
+    - common
+
+- name: Cosmos 체인 초기화 및 실행
+  hosts: validators
+  become: yes
+  roles:
+    - chain-init         # [1단계]
+    - make-key           # [2단계]
+    - genesis-gentx      # [3단계]
+    - copy-genesis       # [4단계] (simd 실행은 제거됨)
+    - set-blocktime      # [5단계] (lineinfile로 timeout 설정)
+    - start-node         # [6단계] (simd 실제 실행)

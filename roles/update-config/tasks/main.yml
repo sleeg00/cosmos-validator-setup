@@ -1,0 +1,23 @@
+- name: "[5단계] 블록 제안 타임아웃 설정 (timeout_propose)"
+  lineinfile:
+    path: "{{ simd_home }}/config/config.toml"
+    regexp: '^timeout_propose ='
+    line: 'timeout_propose = "100ms"'
+
+- name: "[5단계] Prevote 타임아웃 설정 (timeout_prevote)"
+  lineinfile:
+    path: "{{ simd_home }}/config/config.toml"
+    regexp: '^timeout_prevote ='
+    line: 'timeout_prevote = "100ms"'
+
+- name: "[5단계] Precommit 타임아웃 설정 (timeout_precommit)"
+  lineinfile:
+    path: "{{ simd_home }}/config/config.toml"
+    regexp: '^timeout_precommit ='
+    line: 'timeout_precommit = "100ms"'
+
+- name: "[5단계] 블록 생성 주기 설정 (timeout_commit = 500ms)"
+  lineinfile:
+    path: "{{ simd_home }}/config/config.toml"
+    regexp: '^timeout_commit ='
+    line: 'timeout_commit = "500ms"'

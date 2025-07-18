@@ -1,0 +1,9 @@
+chain_id: "my-test-chain"
+stake_denom: "stake"
+stake_amount: "100000000"
+gentx_amount: "50000000"
+env_simd:
+  PATH: "/home/ubuntu/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+simd_bin: /home/ubuntu/go/bin/simd
+simd_home: /home/ubuntu/.simd-{{ inventory_hostname }}
+moniker: "{{ inventory_hostname }}-validator"

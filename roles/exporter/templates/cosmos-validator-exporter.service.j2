@@ -1,0 +1,13 @@
+[Unit]
+Description=Cosmos Validator Exporter
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/cosmos-validators-exporter \
+  --config /etc/cosmos-validator-exporter/config.toml
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,50 @@
+- name: Exporter 설정 디렉토리 생성
+  file:
+    path: /etc/cosmos-validator-exporter
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: "Exporter 바이너리 다운로드"
+  get_url:
+    url: "https://github.com/QuokkaStake/cosmos-validators-exporter/releases/download/v7.0.3/cosmos-validators-exporter_7.0.3_linux_amd64.tar.gz"
+    dest: /tmp/cosmos-validators-exporter.tar.gz
+
+- name: "Exporter 압축 해제"
+  unarchive:
+    src: /tmp/cosmos-validators-exporter.tar.gz
+    dest: /usr/local/bin/
+    remote_src: yes
+
+- name: "Exporter 실행 파일 권한 설정"
+  file:
+    path: /usr/local/bin/cosmos-validators-exporter
+    mode: '0755'
+    state: file
+
+- name:  "설정 파일 배포"
+  template:
+    src: config.toml.j2
+    dest: /etc/cosmos-validator-exporter/config.toml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: systemd 유닛 파일 배포
+  template:
+    src: cosmos-validator-exporter.service.j2
+    dest: /etc/systemd/system/cosmos-validator-exporter.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: systemd 데몬 리로드
+  command: systemctl daemon-reload
+
+- name: Exporter 서비스 시작 및 부팅 시 자동 실행
+  systemd:
+    name: cosmos-validator-exporter
+    enabled: yes
+    state: restarted
+

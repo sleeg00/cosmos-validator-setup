@@ -1,0 +1,9 @@
+- name: "[6단계] simd 실행 (Systemd 아님, Background 실행)"
+  shell: |
+    nohup {{ simd_bin }} start --home {{ simd_home }} > {{ simd_home }}/simd.log 2>&1 &
+    echo $! > {{ simd_home }}/simd.pid
+  args:
+    executable: /bin/bash
+  environment: "{{ env_simd }}"
+  async: 5
+  poll: 0

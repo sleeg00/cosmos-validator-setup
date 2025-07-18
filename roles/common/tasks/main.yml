@@ -1,0 +1,8 @@
+- name: Install basic utilities
+  apt:
+    name:
+      - curl
+      - git
+      - jq
+      - htop
+    state: present

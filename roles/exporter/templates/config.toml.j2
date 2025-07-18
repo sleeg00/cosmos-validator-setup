@@ -1,0 +1,33 @@
+timeout = 10
+listen-address = ":8000"
+
+[log]
+level = "debug"
+json = false
+
+[[chains]]
+name = "testchain"
+lcd-endpoint = "http://localhost:1317"
+base-denom = "stake"
+denoms = [
+  { denom = "stake", display-denom = "stake", coingecko-currency = "cosmos", denom-exponent = 6, ignore = false }
+]
+bech-wallet-prefix = "cosmos"
+
+# host_vars 값만 사용 (valoper/valcons)
+validators = [{ address = "{{ hostvars[inventory_hostname].valoper_address | trim }}", consensus-address = "{{ hostvars[inventory_hostname].valcons_address | trim }}" }]
+
+[chains.queries]
+delegations = true
+unbonds = true
+self-delegation = true
+validators = true
+commission = true
+rewards = true
+balance = true
+signing-info = true
+slashing-params = true
+params = true
+staking-params = true
+node-info = true
+

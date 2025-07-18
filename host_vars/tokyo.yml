@@ -1,0 +1,6 @@
+moniker: tokyo-validator
+chain_id: my-test-chain
+simd_home: /home/ubuntu/.simd-tokyo
+peer_ip: 3.35.221.3
+public_ip: 52.196.214.161
+

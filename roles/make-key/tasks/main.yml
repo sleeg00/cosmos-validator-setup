@@ -1,0 +1,42 @@
+- name: "[2단계] validator 키 생성"
+  command: >
+    simd keys add {{ moniker }} --keyring-backend test --home {{ simd_home }}
+  register: key_result
+  ignore_errors: true
+  environment: "{{ env_simd }}"
+
+- name: "[2단계] validator 주소 확인"
+  command: >
+    simd keys show {{ moniker }} --address --keyring-backend test --home {{ simd_home }}
+  register: validator_address
+  environment: "{{ env_simd }}"
+
+- name: "[2단계] validator 주소 변수 등록"
+  set_fact:
+    validator_address: "{{ validator_address.stdout }}"
+
+- name: "[2단계] 도쿄 주소 파일 저장 (tokyo 노드 전용)"
+  when: inventory_hostname == "tokyo"
+  shell: >
+    echo {{ validator_address }} > /tmp/tokyo.addr
+
+- name: "[2단계] 도쿄 주소 파일을 서울 노드로 전송 (tokyo 노드 → seoul 노드 직접)"
+  when: inventory_hostname == "tokyo"
+  shell: >
+    scp -i /home/ubuntu/node_1.pem \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        /tmp/tokyo.addr \
+        ubuntu@3.35.221.3:/home/ubuntu/tokyo.addr
+
+- name: "[2단계] 도쿄 주소 변수 등록 (서울 노드 전용)"
+  when: inventory_hostname == "seoul"
+  shell: cat /home/ubuntu/tokyo.addr
+  register: tokyo_address_result
+
+- name: "[2단계] SE_ADDR, TK_ADDR 변수 등록"
+  when: inventory_hostname == "seoul"
+  set_fact:
+    SE_ADDR: "{{ validator_address }}"
+    TK_ADDR: "{{ tokyo_address_result.stdout }}"
+
