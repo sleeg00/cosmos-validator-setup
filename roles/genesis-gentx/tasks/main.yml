@@ -1,13 +1,15 @@
 - name: "[3단계] 서울 노드에서 SE_ADDR에 잔액 등록"
   when: inventory_hostname == "seoul"
   command: >
-    simd genesis add-genesis-account {{ SE_ADDR }} {{ stake_amount }}{{ stake_denom }} --home {{ simd_home }}
+    {{ simd_bin }} add-genesis-account {{ SE_ADDR }} {{ stake_amount }}{{ stake_denom }}
+    --home {{ simd_home }}
   environment: "{{ env_simd }}"
 
 - name: "[3단계] 서울 노드에서 TK_ADDR에 잔액 등록"
   when: inventory_hostname == "seoul"
   command: >
-    simd genesis add-genesis-account {{ TK_ADDR }} {{ stake_amount }}{{ stake_denom }} --home {{ simd_home }}
+    {{ simd_bin }} add-genesis-account {{ TK_ADDR }} {{ stake_amount }}{{ stake_denom }}
+    --home {{ simd_home }}
   environment: "{{ env_simd }}"
 
 - name: "[3단계] 도쿄 노드 .simd-tokyo 디렉토리 권한/소유자 수정"
@@ -27,7 +29,7 @@
     group: ubuntu
     mode: '0644'
 
-- name: "[3단계] genesis.json을 도쿄로 복사 (서울 노드 전용)"
+- name: "[3단계] 서울 genesis.json을 도쿄로 복사"
   when: inventory_hostname == "seoul"
   shell: |
     scp -i /home/ubuntu/node_2.pem \
@@ -38,19 +40,37 @@
 
 - name: "[3단계] 각 노드 gentx 생성"
   command: >
-    simd genesis gentx {{ moniker }} {{ gentx_amount }}{{ stake_denom }} --chain-id {{ chain_id }} --keyring-backend test --home {{ simd_home }}
+    {{ simd_bin }} gentx {{ key_name }} {{ gentx_amount }}{{ stake_denom }}
+      --chain-id {{ chain_id }}
+      --home {{ simd_home }}
+      --keyring-backend test
+      --from {{ key_name }}
+      -y
   environment: "{{ env_simd }}"
 
-- name: "[3단계] 도쿄 gentx 파일을 서울로 전송 (도쿄 노드에서만 실행)"
+- name: "[3단계] 도쿄 gentx 파일을 서울로 전송 (도쿄 노드 전용)"
   when: inventory_hostname == "tokyo"
   shell: >
-    scp -i /home/ubuntu/node_1.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-    /home/ubuntu/.simd-tokyo/config/gentx/*.json
-    ubuntu@3.35.221.3:/home/ubuntu/.simd-seoul/config/gentx/
+    scp -i /home/ubuntu/node_1.pem \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        {{ simd_home }}/config/gentx/*.json \
+        ubuntu@3.35.221.3:/home/ubuntu/.simd-seoul/config/gentx/
 
-
-- name: "[3단계] 서울 노드에서 gentx 수집 (서울 노드에서만 실행)"
+- name: "[3단계] 서울 노드에서 gentx 수집"
   when: inventory_hostname == "seoul"
   command: >
-    simd genesis collect-gentxs --home {{ simd_home }}
+    {{ simd_bin }} collect-gentxs
+      --home {{ simd_home }}
+      --gentx-dir {{ simd_home }}/config/gentx
   environment: "{{ env_simd }}"
+  run_once: true
+
+- name: "[3단계] 서울 genesis.json을 도쿄로 복사"
+  when: inventory_hostname == "seoul"
+  shell: |
+    scp -i /home/ubuntu/node_2.pem \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        /home/ubuntu/.simd-seoul/config/genesis.json \
+        ubuntu@52.196.214.161:/home/ubuntu/.simd-tokyo/config/genesis.json

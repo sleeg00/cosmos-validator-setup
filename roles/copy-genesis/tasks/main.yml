@@ -1,52 +1,29 @@
-- name: simd 디렉토리 전체 권한 수정
-  file:
-    path: "{{ simd_home }}"
-    owner: ubuntu
-    group: ubuntu
-    recurse: yes
-
-- name: "[4단계] 서울 genesis.json을 도쿄로 복사"
-  when: inventory_hostname == "seoul"
-  shell: |
-    scp -i /home/ubuntu/node_2.pem \
-        -o StrictHostKeyChecking=no \
-        -o UserKnownHostsFile=/dev/null \
-        /home/ubuntu/.simd-seoul/config/genesis.json \
-        ubuntu@52.196.214.161:/home/ubuntu/.simd-tokyo/config/genesis.json
-
-
 - name: "[4단계] 각 노드의 node_id 추출"
-  command: simd tendermint show-node-id --home {{ simd_home }}
-  register: this_node_id
-  environment: "{{ env_simd }}"
+  command: "{{ simd_bin }} tendermint show-node-id --home {{ simd_home }}"
+  register: node_id_output
+  changed_when: false
 
-- name: "이 노드의 node_id 저장"
+- name: "[4단계] this_node_id 팩트로 저장"
   set_fact:
-    this_node_id: "{{ this_node_id.stdout }}"
+    this_node_id: "{{ node_id_output.stdout }}"
 
-# 각 노드의 node_id를 전체에서 가져오기 위한 등록
-- name: "서울/도쿄 노드의 ID 정보를 facts로 저장"
+# 서울 호스트면 seoul_node_id 팩트로, tokyo 호스트면 tokyo_node_id 팩트로 저장
+- name: "[4단계] 호스트별 node_id 팩트 등록"
   set_fact:
-    seoul_node_id: "{{ hostvars['seoul'].this_node_id }}"
-    seoul_host: "{{ hostvars['seoul'].ansible_host }}"
-    tokyo_node_id: "{{ hostvars['tokyo'].this_node_id }}"
-    tokyo_host: "{{ hostvars['tokyo'].ansible_host }}"
+    seoul_node_id: "{{ this_node_id }}"
+  when: inventory_hostname == 'seoul'
 
-- name: "[4단계] config.toml의 persistent_peers 설정"
-  lineinfile:
+- name: "[4단계] 호스트별 node_id 팩트 등록"
+  set_fact:
+    tokyo_node_id: "{{ this_node_id }}"
+  when: inventory_hostname == 'tokyo'
+
+- name: "[4단계] persistent_peers 한 줄로 대체"
+  replace:
     path: "{{ simd_home }}/config/config.toml"
-    regexp: '^persistent_peers ='
-    line: >
-      persistent_peers = "{% if inventory_hostname == 'seoul' %}
-      {{ tokyo_node_id }}@{{ tokyo_host }}:26656
-      {% elif inventory_hostname == 'tokyo' %}
-      {{ seoul_node_id }}@{{ seoul_host }}:26656
-      {% endif %}"
-    backrefs: yes
-
-- name: simd 디렉토리 전체 권한 재설정 (노드 실행 전)
-  file:
-    path: "{{ simd_home }}"
-    owner: ubuntu
-    group: ubuntu
-    recurse: yes
+    regexp: '^persistent_peers =.*'
+    replace: >-
+      persistent_peers = "{{ (inventory_hostname == 'seoul') 
+        | ternary(hostvars['tokyo'].tokyo_node_id, hostvars['seoul'].seoul_node_id) 
+      }}@{{ peer_ip }}:26656"
+  become: yes

@@ -1,7 +1,16 @@
-- name: "[1단계] 기존 simd 홈 디렉토리 삭제"
+# tasks.yml
+
+- name: "[1단계] 기존 config 디렉토리 삭제"
   file:
-    path: "{{ simd_home }}"
+    path: "{{ simd_home }}/config"
     state: absent
+  become: yes
+
+- name: "[1단계] 기존 data 디렉토리 삭제"
+  file:
+    path: "{{ simd_home }}/data"
+    state: absent
+  become: yes
 
 - name: "[1단계] simd 홈 디렉토리 재생성"
   file:
@@ -10,39 +19,23 @@
     mode: '0755'
     owner: ubuntu
     group: ubuntu
+  become: yes
 
 - name: "[1단계] simd init 실행"
   command: >
-    /home/ubuntu/go/bin/simd init {{ moniker }} --chain-id {{ chain_id }} --home {{ simd_home }}
+    {{ simd_bin }} init {{ moniker }}
+      --chain-id {{ chain_id }}
+      --home {{ simd_home }}
   environment: "{{ env_simd }}"
+  become: yes
 
-- name: "[1단계] 기존 keyring 삭제 (ubuntu key)"
+- name: "[1단계] simd_home 전체 소유권을 ubuntu로 설정"
   file:
-    path: "/home/ubuntu/.simd/keyring-test"
-    state: absent
-  ignore_errors: true
-
-- name: "[1단계] config 디렉토리 소유자 ubuntu로 설정"
-  file:
-    path: "{{ simd_home }}/config"
+    path: "{{ simd_home }}"
+    recurse: yes
     owner: ubuntu
     group: ubuntu
-    recurse: yes
-
-- name: "[1단계] 서울 노드에서 .simd-seoul gentx 디렉토리 삭제"
-  when: inventory_hostname == "seoul"
-  file:
-    path: "/home/ubuntu/.simd-seoul/config/gentx"
-    state: absent
-  ignore_errors: true
-
-- name: "[1단계] 서울 노드에서 .simd-tokyo gentx 디렉토리 삭제"
-  when: inventory_hostname == "seoul"
-  file:
-    path: "/home/ubuntu/.simd-tokyo/config/gentx"
-    state: absent
-  ignore_errors: true
-
+  become: yes
 
 - name: "[1단계] gentx 디렉토리 재생성"
   file:
@@ -51,3 +44,4 @@
     owner: ubuntu
     group: ubuntu
     mode: '0755'
+  become: yes

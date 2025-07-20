@@ -1,15 +1,24 @@
-- name: "[2단계] validator 키 생성"
+- name: "[2단계] validator 키 존재 여부 확인"
+  stat:
+    path: "{{ simd_home }}/keyring-test/{{ key_name }}.info"
+  register: key_info
+
+- name: "[2단계] validator 키가 없으면 생성"
+  when: not key_info.stat.exists
   command: >
-    simd keys add {{ moniker }} --keyring-backend test --home {{ simd_home }}
-  register: key_result
-  ignore_errors: true
+    simd keys add {{ key_name }}
+    --keyring-backend test
+    --home {{ simd_home }}
   environment: "{{ env_simd }}"
 
 - name: "[2단계] validator 주소 확인"
   command: >
-    simd keys show {{ moniker }} --address --keyring-backend test --home {{ simd_home }}
+    simd keys show {{ key_name }}
+    --address
+    --keyring-backend test
+    --home {{ simd_home }}
   register: validator_address
-  environment: "{{ env_simd }}"
+
 
 - name: "[2단계] validator 주소 변수 등록"
   set_fact:
@@ -17,16 +26,20 @@
 
 - name: "[2단계] 도쿄 주소 파일 저장 (tokyo 노드 전용)"
   when: inventory_hostname == "tokyo"
-  shell: >
-    echo {{ validator_address }} > /tmp/tokyo.addr
+  copy:
+    content: "{{ validator_address }}"
+    dest: "/home/ubuntu/tokyo.addr"
+    owner: ubuntu
+    group: ubuntu
+    mode: "0644"
 
-- name: "[2단계] 도쿄 주소 파일을 서울 노드로 전송 (tokyo 노드 → seoul 노드 직접)"
+- name: "[2단계] 도쿄 주소 파일을 서울 노드로 전송 (tokyo → seoul)"
   when: inventory_hostname == "tokyo"
   shell: >
     scp -i /home/ubuntu/node_1.pem \
         -o StrictHostKeyChecking=no \
         -o UserKnownHostsFile=/dev/null \
-        /tmp/tokyo.addr \
+        /home/ubuntu/tokyo.addr \
         ubuntu@3.35.221.3:/home/ubuntu/tokyo.addr
 
 - name: "[2단계] 도쿄 주소 변수 등록 (서울 노드 전용)"
@@ -34,9 +47,8 @@
   shell: cat /home/ubuntu/tokyo.addr
   register: tokyo_address_result
 
-- name: "[2단계] SE_ADDR, TK_ADDR 변수 등록"
+- name: "[2단계] SE_ADDR, TK_ADDR 변수 등록 (서울 노드 전용)"
   when: inventory_hostname == "seoul"
   set_fact:
     SE_ADDR: "{{ validator_address }}"
     TK_ADDR: "{{ tokyo_address_result.stdout }}"
-

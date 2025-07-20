@@ -1,4 +1,13 @@
-- name: "[6단계] simd 실행 (Systemd 아님, Background 실행)"
+- name: "[5.5단계] 기존 simd 프로세스 중지"
+  shell: |
+    if [ -f {{ simd_home }}/simd.pid ]; then
+      kill $(cat {{ simd_home }}/simd.pid) || true
+      rm -f {{ simd_home }}/simd.pid
+    fi
+  args:
+    executable: /bin/bash
+
+- name: "[6단계] simd 실행 (metrics 포함, Background 실행)"
   shell: |
     nohup {{ simd_bin }} start --home {{ simd_home }} > {{ simd_home }}/simd.log 2>&1 &
     echo $! > {{ simd_home }}/simd.pid

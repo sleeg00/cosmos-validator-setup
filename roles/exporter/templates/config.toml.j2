@@ -3,31 +3,36 @@ listen-address = ":8000"
 
 [log]
 level = "debug"
-json = false
+json  = false
 
 [[chains]]
-name = "testchain"
-lcd-endpoint = "http://localhost:1317"
-base-denom = "stake"
+name             = "{{ hostvars[inventory_hostname].chain_name }}"
+lcd-endpoint     = "http://localhost:1317"
+base-denom       = "stake"
 denoms = [
   { denom = "stake", display-denom = "stake", coingecko-currency = "cosmos", denom-exponent = 6, ignore = false }
 ]
 bech-wallet-prefix = "cosmos"
 
-# host_vars 값만 사용 (valoper/valcons)
-validators = [{ address = "{{ hostvars[inventory_hostname].valoper_address | trim }}", consensus-address = "{{ hostvars[inventory_hostname].valcons_address | trim }}" }]
+# 한 줄로 inline table 작성
+validators = [ { address = "{{ hostvars[inventory_hostname].valoper_address | trim }}", consensus-address = "{{ hostvars[inventory_hostname].valcons_address | trim }}" } ]
+
+delegator-address = "{{ hostvars[inventory_hostname].delegator_address | trim }}"
+is-provider       = false
 
 [chains.queries]
-delegations = true
-unbonds = true
-self-delegation = true
-validators = true
-commission = true
-rewards = true
-balance = true
-signing-info = true
-slashing-params = true
-params = true
-staking-params = true
-node-info = true
-
+delegations         = true
+unbonds             = true
+self-delegation     = true
+validators          = true
+consumer-validators = true
+consumer-info       = true
+commission          = true
+rewards             = true
+balance             = true
+assigned-key        = true
+signing-info        = true
+slashing-params     = true
+params              = true
+staking-params      = true
+node-info           = true

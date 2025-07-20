@@ -21,3 +21,32 @@
     path: "{{ simd_home }}/config/config.toml"
     regexp: '^timeout_commit ='
     line: 'timeout_commit = "500ms"'
+
+- name: "[5단계] Prometheus 메트릭 수집 활성화"
+  lineinfile:
+    path: "{{ simd_home }}/config/config.toml"
+    regexp: '^prometheus ='
+    line: 'prometheus = true'
+    insertafter: '^\[instrumentation\]'
+  tags: update-config
+
+- name: "[5단계] laddr의 IP만 0.0.0.0으로 덮어쓰기 (포트 유지)"
+  replace:
+    path: "{{ simd_home }}/config/config.toml"
+    regexp: '^laddr = "tcp://[^:]+:(\d+)"'
+    replace: 'laddr = "tcp://0.0.0.0:\1"'
+  tags: update-config
+
+
+
+
+
+
+- name: "[5단계] app.toml 배포"
+  template:
+    src: app.toml.j2
+    dest: "{{ simd_home }}/config/app.toml"
+    mode: "0644"
+    owner: ubuntu
+    group: ubuntu
+  tags: update-config
