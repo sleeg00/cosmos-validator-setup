@@ -1,12 +1,11 @@
-
 chain_id: my-test-chain
 simd_home: /home/ubuntu/.simd-seoul
 peer_ip: 52.196.214.161
 public_ip: 3.35.221.3
 
 # host_vars/seoul.yml
-valoper_address: "cosmosvaloper10suxyxhschwgzn9zt668rwdtu8pt48yk04rydp"
-valcons_address: "cosmosvalcons1sn6u49v469guwkg45tka6v72pxyy7jk3ytd87m"
 delegator_address: "cosmos10suxyxhschwgzn9zt668rwdtu8pt48yk2ph3pj"
+valoper_address:   "cosmosvaloper10suxyxhschwgzn9zt668rwdtu8pt48yk04rydp"
+valcons_address:   "cosmosvalcons15ev9g5l0mvumszq2zxwxllkf8fntldawuj4teu"
 
-chain_name: "my-test-chain"           # ← 이 줄이 빠져 있었음
+chain_name: "my-test-chain"

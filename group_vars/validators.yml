@@ -1,19 +1,14 @@
-# vars.yml (또는 playbook 상단 vars 섹션)
 chain_id:    "my-test-chain"
 stake_denom: "stake"
 stake_amount:  "100000000"
 gentx_amount: "50000000"
 
-# 실제 simd 바이너리 경로를 절대경로로 지정합니다
 simd_bin:    "/usr/local/bin/simd"
 
-# 환경 변수로 PATH 지정이 필요하다면 이렇게, 
-# 아니면 이 entire env_simd 블록은 생략하셔도 됩니다
 env_simd:
   PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
 
-# 홈 디렉토리 패턴
 simd_home:   "/home/ubuntu/.simd-{{ inventory_hostname }}"
 
 moniker:     "{{ inventory_hostname }}-validator"
-key_name:    "{{ inventory_hostname }}-validator"  # gentx 생성 시 --from 값
+key_name:    "{{ inventory_hostname }}-validator"

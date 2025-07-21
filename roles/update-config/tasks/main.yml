@@ -37,11 +37,6 @@
     replace: 'laddr = "tcp://0.0.0.0:\1"'
   tags: update-config
 
-
-
-
-
-
 - name: "[5단계] app.toml 배포"
   template:
     src: app.toml.j2

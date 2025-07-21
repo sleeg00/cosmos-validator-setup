@@ -2,7 +2,7 @@ global:
   scrape_interval: 5s
 
 scrape_configs:
-  # → 서울 리전 (Tendermint 노드)
+  # 서울 리전 (Tendermint 노드)
   - job_name: 'seoul'
     metrics_path: /metrics
     static_configs:
@@ -10,7 +10,7 @@ scrape_configs:
         labels:
           component: 'tendermint'
 
-  # → 도쿄 리전 (Tendermint 노드)
+  # 도쿄 리전 (Tendermint 노드)
   - job_name: 'tokyo'
     metrics_path: /metrics
     static_configs:
@@ -18,7 +18,7 @@ scrape_configs:
         labels:
           component: 'tendermint'
 
-  # → 서울 리전 (Validator Exporter)
+  # 서울 리전 (Validator Exporter)
   - job_name: 'seoul-exporter'
     metrics_path: /metrics
     static_configs:
@@ -28,7 +28,7 @@ scrape_configs:
           address: 'cosmosvaloper1rz3clf42kprdefphez5ykay9urehjevstmypqp'
           component: 'exporter'
 
-  # → 도쿄 리전 (Validator Exporter)
+  # 도쿄 리전 (Validator Exporter)
   - job_name: 'tokyo-exporter'
     metrics_path: /metrics
     static_configs:

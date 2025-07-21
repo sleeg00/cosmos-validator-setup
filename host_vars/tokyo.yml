@@ -1,4 +1,3 @@
-
 chain_id: my-test-chain
 simd_home: /home/ubuntu/.simd-tokyo
 peer_ip: 3.35.221.3
@@ -7,6 +6,6 @@ public_ip: 52.196.214.161
 # host_vars/tokyo.yml
 delegator_address: "cosmos1csw6az0lkj9gwqdjc2p7u62lawn9rc6tgp7sy3"
 valoper_address:   "cosmosvaloper1csw6az0lkj9gwqdjc2p7u62lawn9rc6td429gz"
-valcons_address:   "cosmosvalcons1rh7x2zv9mvs70m3p460emr47n2x8cjkk5p0s80"
+valcons_address:   "cosmosvalcons1neng7d8n8ewte4fj0ajp25re20x2wseegps5z5"
 
 chain_name: "my-test-chain"

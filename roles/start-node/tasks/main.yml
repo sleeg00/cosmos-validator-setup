@@ -1,4 +1,4 @@
-- name: "[5.5단계] 기존 simd 프로세스 중지"
+- name: "[6단계] 기존 simd 프로세스 중지"
   shell: |
     if [ -f {{ simd_home }}/simd.pid ]; then
       kill $(cat {{ simd_home }}/simd.pid) || true

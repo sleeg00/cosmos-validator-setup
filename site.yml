@@ -8,12 +8,12 @@
   hosts: validators
   become: yes
   roles:
-    - chain-init         # [1단계]
-    - make-key           # [2단계]
-    - genesis-gentx      # [3단계]
-    - copy-genesis       # [4단계] (simd 실행은 제거됨)
-    - update-config      # [5단계] (lineinfile로 timeout 설정)
-    - start-node         # [6단계] (simd 실제 실행)
+    - chain-init
+    - make-key
+    - genesis-gentx
+    - copy-genesis
+    - update-config
+    - start-node
 
 - name : cosmos-validator-exporter 실행
   hosts: validators
